@@ -66,3 +66,5 @@ module SerializedSettings
     end
   end
 end
+
+ActiveRecord::Base.send(:include, SerializedSettings)
