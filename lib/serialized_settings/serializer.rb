@@ -7,7 +7,7 @@ module SerializedSettings
   class Serializer
     def initialize(data = nil, defaults = nil)
       clear
-      update(YAML.load(StringIO.new(data)))
+      update(data.is_a?(Hash) ? data : YAML.load(data))
 
       case defaults
         when String, Hash
