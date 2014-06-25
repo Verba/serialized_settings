@@ -60,6 +60,7 @@ module SerializedSettings
         end
 
         before_save do
+          send("#{attr_name}_will_change!")
           write_attribute(attr_name, send(reader_name).output)
         end
       end
