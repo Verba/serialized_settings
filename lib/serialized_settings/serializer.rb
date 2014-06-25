@@ -6,22 +6,23 @@ require 'active_support/core_ext/hash/deep_merge'
 module SerializedSettings
   class Serializer
     def initialize(data = nil, defaults = nil)
+      # set @data
       clear
 
       hash = case data
-               when String
-                 YAML.load(data)
-               when Hash
-                 data
+             when String
+               YAML.load(data)
+             when Hash
+               data
              end
 
       update(hash) if hash
 
       case defaults
-        when String, Hash
-          @defaults = self.class.new(defaults)
-        when Serializer
-          @defaults = defaults
+      when String, Hash
+        @defaults = self.class.new(defaults)
+      when Serializer
+        @defaults = defaults
       end
     end
 
@@ -42,6 +43,7 @@ module SerializedSettings
       update(key => value)
     end
 
+    # Get the value at this key/path
     def value(key, with_defaults = true)
       path  = key.to_s.split(".")
       value = deep_fetch(@data, *path)
@@ -59,12 +61,15 @@ module SerializedSettings
       value
     end
 
+    # {path => value},
+    # {"compete.settings.valore.activated" => true}
     def update(hash)
       hash.each do |key, value|
         deep_update(@data, key.to_s.split(".").reverse.inject(value) {|memo, v| {v => memo}})
       end
     end
 
+    # Replace all the settings with the ones described in this hash.
     def update_all(data)
       clear
       update(data)
@@ -75,6 +80,8 @@ module SerializedSettings
       @data = {}
     end
 
+    # Follow a path (splatted array) to a value
+    # Return nil if the path doesn't terminate in a value
     def deep_fetch(hash, first, *rest)
       data = hash[first]
       if rest.empty?

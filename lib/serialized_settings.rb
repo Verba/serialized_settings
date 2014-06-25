@@ -49,10 +49,10 @@ module SerializedSettings
           @serialized_settings ||= {}
           @serialized_settings[attr_name] ||= begin
             defaults = case options[:defaults]
-                         when Proc
-                           options[:defaults].call(self)
-                         else
-                           options[:defaults]
+                       when Proc
+                         options[:defaults].call(self)
+                       else
+                         options[:defaults]
                        end
 
             Serializer.new(read_attribute(attr_name), defaults)
