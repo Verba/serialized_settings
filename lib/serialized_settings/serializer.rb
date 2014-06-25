@@ -6,6 +6,8 @@ require 'active_support/core_ext/hash/deep_merge'
 module SerializedSettings
   class Serializer
     def initialize(data = nil, defaults = nil)
+      @versions = []
+
       # set @data
       clear
 
@@ -64,8 +66,13 @@ module SerializedSettings
     # {path => value},
     # {"compete.settings.valore.activated" => true}
     def update(hash)
-      hash.each do |key, value|
-        deep_update(@data, key.to_s.split(".").reverse.inject(value) {|memo, v| {v => memo}})
+      @versions << Marshal.load(Marshal.dump(@data))
+
+      hash.map do |key, value|
+        # ["one.two.three", 4] -> {"one" => {"two" => {"three" => 4}}}
+        key.to_s.split(".").reverse.inject(value) { |memo, v| {v => memo} }
+      end.each do |apply_hash|
+        deep_update(@data, apply_hash)
       end
     end
 
