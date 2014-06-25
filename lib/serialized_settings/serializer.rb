@@ -91,26 +91,33 @@ module SerializedSettings
       end
     end
 
-    def deep_update(hash, other_hash, tree=[])
-      other_hash.each do |k, v|
-        k  = k.to_s
-        tv = hash[k]
+    # Update the hash "base" with hash "apply"
+    def deep_update(base, apply, tree=[])
+      apply.each do |ak, av|
+        # All keys must be strings to be a proper "path"
+        ak  = ak.to_s
+        bv = base[ak]
 
-        if v.is_a?(Hash)
-          tv = {} unless tv.is_a?(Hash)
-          hash[k] = deep_update(tv, v, tree.dup.push(k))
-          hash.delete(k) if hash[k].empty?
+        # Are we descending?
+        if av.is_a?(Hash)
+          bv = {} unless base.has_key?(ak)
+
+          raise "Expected hash at #{(tree + [ak]).join(".")}, was #{bv.class}:#{bv.inspect}" unless bv.is_a?(Hash)
+
+          base[ak] = deep_update(bv, av, tree.dup.push(ak))
+          base.delete(ak) if base[ak].empty?
         else
-          if @defaults && @defaults.value(tree.dup.push(k).join(".")) == v
-            hash.delete(k)
+          # Are we resetting to default value? We can delete this node
+          if @defaults && @defaults.value(tree.dup.push(ak).join(".")) == av
+            base.delete(ak)
             next
           end
 
-          hash[k] = v
+          base[ak] = av
         end
       end
 
-      hash
+      base
     end
   end
 end
