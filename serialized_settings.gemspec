@@ -2,9 +2,9 @@ Gem::Specification.new do |s|
   s.name        = 'serialized_settings'
   s.version     = '0.0.1'
   s.date        = '2013-01-09'
-  s.summary     = "Handles serializing and deserializing settings on an ActiveRecord model"
-  s.authors     = ["Mike Ragalie", "John Firebaugh"]
-  s.email       = ["michael.ragalie@verbasoftware.com"]
+  s.summary     = "Handles serializing and deserializing settings on an ActiveRecord model, with default settings and dotted path key syntax (from.hash.to.hash => value)."
+  s.authors     = [ "Verba "]
+  s.email       = [ "tech@verba.io" ]
   s.files       = Dir["lib/**/*"]
   s.test_files  = Dir["spec/**/*"]
 
