@@ -96,7 +96,7 @@ module SerializedSettings
               end
             end
           end
-           matching
+          matching
         end
       end
     end
