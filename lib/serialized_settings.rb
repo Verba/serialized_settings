@@ -72,13 +72,12 @@ module SerializedSettings
 
       self.class.instance_eval do
         redefine_method("find_by_#{reader_name}") do |*args|
-          conditions = args.reduce({}) do |args_hash, arg|
+          conditions = args.each_with_object({}) do |arg, args_hash|
             case arg
             when String
               args_hash[arg] = true
-              args_hash
             when Hash
-              args_hash.merge(arg)
+              args_hash.merge!(arg)
             else
               raise ArgumentError, "must be String or Hash, got #{arg.class.name}"
             end
@@ -86,19 +85,16 @@ module SerializedSettings
 
           matching = []
           self.find_each do |model|
-            matches = true
-            conditions.each_pair do |setting, value|
-              break unless matches
+            matching << model if conditions.each_pair.all? do |setting, value|
               case value
               when true
-                matches = false unless model.send(reader_name).value(setting)
+                model.send(reader_name).value(setting)
               when false, nil
-                matches = false if model.send(reader_name).value(setting)
+                !model.send(reader_name).value(setting)
               else
-                matches = false unless model.send(reader_name).value(setting) == value
+                model.send(reader_name).value(setting) == value
               end
             end
-            matching << model if matches
           end
            matching
         end
