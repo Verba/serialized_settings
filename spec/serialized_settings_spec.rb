@@ -39,4 +39,38 @@ describe SerializedSettings do
       subject.read_attribute(:settings).should == YAML::dump("cat" => "pig", "penguin" => "capybara")
     end
   end
+
+  describe "finder" do
+    before { subject.save! }
+
+    it "takes a string and returns models that have that setting" do
+      expect(subject.class.find_by_settings("cat")).to include(subject)
+      expect(subject.class.find_by_settings("gecko")).not_to include(subject)
+    end
+
+    it "takes a hash with a value of true and returns models that have that setting" do
+      expect(subject.class.find_by_settings("cat" => true)).to include(subject)
+      expect(subject.class.find_by_settings("gecko" => true)).not_to include(subject)
+    end
+
+    it "takes a hash with a value of false and returns models that don't have that setting" do
+      expect(subject.class.find_by_settings("cat" => false)).not_to include(subject)
+      expect(subject.class.find_by_settings("gecko" => false)).to include(subject)
+    end
+
+    it "takes a hash with a key and value and returns models which match that setting" do
+      expect(subject.class.find_by_settings("cat" => "dog")).to include(subject)
+      expect(subject.class.find_by_settings("cat" => "ferret")).not_to include(subject)
+    end
+
+    it "takes a hash with multiple entries and returns models that match all of them" do
+      expect(subject.class.find_by_settings("cat" => "dog", "penguin" => "capybara")).to include(subject)
+      expect(subject.class.find_by_settings("cat" => "dog", "penguin" => "anteater")).not_to include(subject)
+    end
+
+    it "takes multiple arguments and returns models that match all of them" do
+      expect(subject.class.find_by_settings("cat", "penguin" => "capybara")).to include(subject)
+      expect(subject.class.find_by_settings("gecko", "penguin" => "capybara")).not_to include(subject)
+    end
+  end
 end

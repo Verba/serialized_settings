@@ -47,6 +47,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bump
+  rake
   rspec
   serialized_settings!
   sqlite3

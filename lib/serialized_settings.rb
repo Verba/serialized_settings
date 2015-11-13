@@ -41,18 +41,23 @@ module SerializedSettings
     # [attr_name.update_all(hash)]
     #   Clears the store, then updates.
     #
+    # [find_by_attr_name(settings)]
+    #   Acts like ActiveRecord finders to return models that match the supplied settings.
+    #   Takes either a string, which will return models for which the value is truthy,
+    #   or a hash of keys and values, which will return models where all conditions match.
+    #
     def serialize_settings(attr_name, options={})
-      class_eval do
-        reader_name = (options[:reader_name] || attr_name).to_s
+      reader_name = (options[:reader_name] || attr_name).to_s
 
+      class_eval do
         redefine_method(reader_name) do
           @serialized_settings ||= {}
           @serialized_settings[attr_name] ||= begin
             defaults = case options[:defaults]
-                         when Proc
-                           options[:defaults].call(self)
-                         else
-                           options[:defaults]
+                       when Proc
+                         options[:defaults].call(self)
+                       else
+                         options[:defaults]
                        end
 
             Serializer.new(read_attribute(attr_name), defaults)
@@ -60,7 +65,38 @@ module SerializedSettings
         end
 
         before_save do
+          send("#{attr_name}_will_change!")
           write_attribute(attr_name, send(reader_name).output)
+        end
+      end
+
+      self.class.instance_eval do
+        redefine_method("find_by_#{reader_name}") do |*args|
+          conditions = args.each_with_object({}) do |arg, args_hash|
+            case arg
+            when String
+              args_hash[arg] = true
+            when Hash
+              args_hash.merge!(arg)
+            else
+              raise ArgumentError, "must be String or Hash, got #{arg.class.name}"
+            end
+          end
+
+          matching = []
+          self.find_each do |model|
+            matching << model if conditions.each_pair.all? do |setting, value|
+              case value
+              when true
+                model.send(reader_name).value(setting)
+              when false, nil
+                !model.send(reader_name).value(setting)
+              else
+                model.send(reader_name).value(setting) == value
+              end
+            end
+          end
+          matching
         end
       end
     end
