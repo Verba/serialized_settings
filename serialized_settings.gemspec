@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.files       = Dir["lib/**/*"]
   s.test_files  = Dir["spec/**/*"]
 
-  s.add_dependency "activerecord", "~> 3.2"
-  s.add_dependency "activesupport", "~> 3.2"
+  s.add_dependency "activerecord", ">= 3.2", "< 5"
+  s.add_dependency "activesupport", ">= 3.2", "< 5"
 
   s.add_development_dependency "bump"
   s.add_development_dependency "rake"
