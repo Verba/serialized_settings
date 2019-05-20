@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'serialized_settings'
-  s.version     = '2.0.0'
+  s.version     = '2.1.0'
   s.date        = '2014-11-11'
   s.summary     = "Handles serializing and deserializing settings on an ActiveRecord model, with default settings and dotted path key syntax (from.hash.to.hash => value)."
   s.authors     = [ "Verba "]
